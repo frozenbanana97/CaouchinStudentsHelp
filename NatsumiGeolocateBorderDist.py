@@ -2,13 +2,15 @@ import pandas as pd
 import geopandas as gpd
 import numpy as np
 
+# Import raw data as excel file
 df = pd.read_excel('natsumiData.xlsx')
-df = df.drop(index=0) # Locus adds an empty row here, remove this line if not needed
+df = df.drop(index=0)
 df.reset_index(inplace=True, drop=True)
 
-# south intial
+# south initial coordinate conversion
 df['dms'] = df['Coordenadas S'].str.strip()
 
+# split deg min sec into variables
 deg = df['dms'].str[:2]
 min = df['dms'].str[3:5]
 sec = df['dms'].str[6:10]
@@ -21,9 +23,10 @@ df['deg'] = df['deg'].astype(float)
 df['min'] = df['min'].astype(float)
 df['sec'] = df['sec'].astype(float)
 
+# convert/merge the standalone values to deimal degrees and apply -1 for south
 df['Coordenadas S'] = (df['deg'] + (df['min']/60) + (df['sec']/3600)) * -1
 
-# west initial
+# west initial coordinate conversion
 df['dms'] = df['Coordenadas W'].str.strip()
 
 deg = df['dms'].str[:3]
@@ -38,9 +41,10 @@ df['deg'] = df['deg'].astype(float)
 df['min'] = df['min'].astype(float)
 df['sec'] = df['sec'].astype(float)
 
+# convert/merge the standalone values to deimal degrees and apply -1 for south
 df['Coordenadas W'] = (df['deg'] + (df['min']/60) + (df['sec']/3600)) * -1
 
-# south final
+# south final coordinate conversion
 df['dms'] = df['Coordenadas S.1'].str.strip()
 
 deg = df['dms'].str[:2]
@@ -55,9 +59,10 @@ df['deg'] = df['deg'].astype(float)
 df['min'] = df['min'].astype(float)
 df['sec'] = df['sec'].astype(float)
 
+# convert/merge the standalone values to deimal degrees and apply -1 for south
 df['Coordenadas S.1'] = (df['deg'] + (df['min']/60) + (df['sec']/3600)) * -1
 
-# west final
+# west final coordinate conversion
 df['dms'] = df['Coordenadas W.1'].str.strip()
 
 deg = df['dms'].str[:3]
@@ -72,24 +77,29 @@ df['deg'] = df['deg'].astype(float)
 df['min'] = df['min'].astype(float)
 df['sec'] = df['sec'].astype(float)
 
+# convert/merge the standalone values to deimal degrees and apply -1 for south
 df['Coordenadas W.1'] = (df['deg'] + (df['min']/60) + (df['sec']/3600)) * -1
 
+# remov the temp columns for deg min sec
 df.pop('dms')
 df.pop('deg')
 df.pop('min')
 df.pop('sec')
 
-# to gdf
+# to gdf with geometry as initial
 gdf = gpd.GeoDataFrame(df, geometry=gpd.points_from_xy(df['Coordenadas W'],df['Coordenadas S'])) 
+# set crs/projection
 gdf = gdf.set_crs('EPSG:4326')
 gdf = gdf.to_crs('EPSG:31985')
 gdf['Coordenadas Inicial'] = gdf['geometry']
+# create points for final
 gdf = gpd.GeoDataFrame(gdf, geometry=gpd.points_from_xy(df['Coordenadas W.1'],df['Coordenadas S.1'])) 
 gdf = gdf.set_crs('EPSG:4326', allow_override=True)
 gdf = gdf.to_crs('EPSG:31985')
 gdf['Coordenadas Final'] = gdf['geometry']
 gdf.pop('geometry')
 
+# import edge lines
 edgeLine = gpd.read_file('CaaporaFragmentEdge.gpkg', layer='EdgeLine')
 edgeupperLine = gpd.read_file('CaaporaFragmentEdge.gpkg', layer='EdgeUpper')
 edgelowerLine = gpd.read_file('CaaporaFragmentEdge.gpkg', layer='EdgeLower')
@@ -109,3 +119,5 @@ gdf.loc[:,'finDistUpEdge'] = gdf['Coordenadas Final'].distance(edgeupper)
 gdf.loc[:,'finDistLowEdge'] = gdf['Coordenadas Final'].distance(edgelower)
 
 gdf.to_csv('natsumiData.csv')
+
+print('Done')
