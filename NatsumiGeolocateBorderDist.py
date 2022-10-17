@@ -117,6 +117,30 @@ gdf.loc[:,'finDistEdge'] = gdf['Coordenadas Final'].distance(edge)
 gdf.loc[:,'finDistUpEdge'] = gdf['Coordenadas Final'].distance(edgeupper)
 gdf.loc[:,'finDistLowEdge'] = gdf['Coordenadas Final'].distance(edgelower)
 
+ini50 = gdf['iniDistEdge']
+fin50 = gdf['finDistEdge']
+
+iniStat = []
+for i in ini50:
+    if i <= 50:
+        stat='border'
+        iniStat.append(stat)
+    else:
+        stat='interior'
+        iniStat.append(stat)
+
+finStat = []
+for i in fin50:
+    if i <= 50:
+        stat='border'
+        finStat.append(stat)
+    else:
+        stat='interior'
+        finStat.append(stat)
+        
+gdf.insert(loc=13, column='initial status', value=iniStat)
+gdf.insert(loc=14, column='final status', value=finStat)
+
 gdf.to_csv('natsumiData.csv')
 
 print('DONE')
