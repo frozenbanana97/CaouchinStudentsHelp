@@ -1,6 +1,5 @@
 import pandas as pd
 import geopandas as gpd
-import numpy as np
 
 # Import raw data as excel file
 df = pd.read_excel('natsumiData.xlsx')
@@ -120,4 +119,4 @@ gdf.loc[:,'finDistLowEdge'] = gdf['Coordenadas Final'].distance(edgelower)
 
 gdf.to_csv('natsumiData.csv')
 
-print('Done')
+print('DONE')
