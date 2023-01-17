@@ -125,8 +125,11 @@ for i in ini50:
     if i <= 50:
         stat='border'
         iniStat.append(stat)
-    else:
+    elif i > 50:
         stat='interior'
+        iniStat.append(stat)
+    else:
+        stat='N/A'
         iniStat.append(stat)
 
 finStat = []
@@ -134,8 +137,11 @@ for i in fin50:
     if i <= 50:
         stat='border'
         finStat.append(stat)
-    else:
+    elif i > 50:
         stat='interior'
+        finStat.append(stat)
+    else:
+        stat='N/A'
         finStat.append(stat)
         
 gdf.insert(loc=13, column='initial status', value=iniStat)
